@@ -1,0 +1,40 @@
+version: '3'
+services:
+  manager:
+    container_name: manager
+    ports:
+      - "8080:8080"
+    build:
+      context: .
+      dockerfile: manager/Dockerfile
+    env_file:
+      - .env
+    networks:
+      - crackhash
+
+  worker-1:
+    container_name: worker-1
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    networks:
+      - crackhash
+
+  worker-2:
+      container_name: worker-2
+      build:
+        context: .
+        dockerfile: worker/Dockerfile
+      networks:
+        - crackhash
+
+  worker-3:
+      container_name: worker-3
+      build:
+        context: .
+        dockerfile: worker/Dockerfile
+      networks:
+        - crackhash
+
+networks:
+  crackhash:
