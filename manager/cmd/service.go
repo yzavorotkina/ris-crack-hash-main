@@ -26,7 +26,7 @@ func Init() {
 	r.HandleFunc("/internal/api/manager/hash/crack", crackHash).Methods("POST")
 	r.HandleFunc("/internal/api/manager/hash/status", getHashStatus).Methods("GET")
 	r.HandleFunc("/internal/api/manager/hash/crack/request", workerResult).Methods("PATCH")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("MANAGER_PORT"), r))
 }
 
 //	порт в константы

@@ -9,6 +9,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"os"
 	"ris/worker/model"
 	"strings"
 	"sync"
@@ -104,7 +105,10 @@ func startTask(task model.CrackHashManagerRequest) {
 	alphabet := task.Alphabet.Symbols
 	results := processTask(task.Hash, task.MaxLength, alphabet, task.PartNumber, task.PartCount)
 
-	managerUrl := fmt.Sprintf("http://manager:8080/internal/api/manager/hash/crack/request")
+	managerUrl := fmt.Sprintf("http://manager:" +
+		os.Getenv("MANAGER_PORT") +
+		"/internal/api/manager/hash/crack/request")
+
 	workerResult := model.WorkerResult{
 		RequestID: task.RequestId,
 		Word:      strings.Join(results, ","),

@@ -77,7 +77,7 @@ func workerResult(w http.ResponseWriter, r *http.Request) {
 
 	workerCount := getWorkerCount()
 	if countOfCompletedWorkers(workerResult.RequestID) == workerCount {
-		updateTaskStatus(workerResult.RequestID, "READY")
+		updateTaskStatus(workerResult.RequestID, model.READY)
 	}
 }
 

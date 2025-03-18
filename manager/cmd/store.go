@@ -1,10 +1,10 @@
 package main
 
 import (
-	"log"
-	"sync"
-
 	"github.com/google/uuid"
+	"log"
+	"ris/manager/model"
+	"sync"
 )
 
 type Task struct {
@@ -30,7 +30,7 @@ func createTask(hash string, maxLength int) string {
 		RequestID: requestId,
 		Hash:      hash,
 		MaxLength: maxLength,
-		Status:    "IN_PROGRESS",
+		Status:    model.IN_PROGRESS,
 		Data:      []string{},
 	}
 
