@@ -23,8 +23,9 @@ type HashStatusRequest struct {
 }
 
 type HashStatusResponse struct {
-	Status string   `json:"status"`
-	Data   []string `json:"data"`
+	Status   string   `json:"status"`
+	Data     []string `json:"data"`
+	Progress int      `json:"progress"`
 }
 
 type HashCrackManagerRequest struct {

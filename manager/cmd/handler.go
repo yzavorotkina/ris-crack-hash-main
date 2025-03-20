@@ -46,15 +46,19 @@ func getHashStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	status, data := getHashStatusById(hashStatusRequest.RequestID)
+	status, data, startTime, timeout := getHashStatusById(hashStatusRequest.RequestID)
+	progress := calculateProgress(status, startTime, timeout)
+
+	cleanData := filterEmptyStrings(data)
 
 	response := model.HashStatusResponse{
-		Status: status,
-		Data:   nil,
+		Status:   status,
+		Data:     nil,
+		Progress: progress,
 	}
 
-	if status == model.READY {
-		response.Data = data
+	if status == model.READY || status == model.PARTITION_READY {
+		response.Data = cleanData
 	}
 
 	err = json.NewEncoder(w).Encode(response)
@@ -80,7 +84,3 @@ func workerResult(w http.ResponseWriter, r *http.Request) {
 		updateTaskStatus(workerResult.RequestID, model.READY)
 	}
 }
-
-//статусы в enum
-// прогресс
-// github + readme

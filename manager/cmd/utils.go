@@ -26,7 +26,7 @@ func checkWorkerHealth(workerID int) bool {
 func monitorWorkers(requestId string, workerCount int) {
 	for {
 		completedParts := countOfCompletedWorkers(requestId)
-		status, data := getHashStatusById(requestId)
+		status, data, _, _ := getHashStatusById(requestId)
 
 		aliveWorkers := 0
 		for i := 1; i <= workerCount; i++ {
@@ -63,7 +63,6 @@ func processTask(requestId string, hash string, maxLength int) {
 	workerPort := os.Getenv("WORKER_PORT")
 	for i := 1; i <= workerCount; i++ {
 		xmlRequest := generateXMLRequest(requestId, hash, maxLength, i, workerCount, alphabet)
-		log.Printf("Worker port: %v", workerPort)
 		workerUrl := fmt.Sprintf("http://worker-%d:"+workerPort+"/internal/api/worker/hash/crack/task", i)
 		sendTask(xmlRequest, workerUrl)
 	}
@@ -71,8 +70,8 @@ func processTask(requestId string, hash string, maxLength int) {
 	go monitorWorkers(requestId, workerCount)
 
 	go func() {
-		time.Sleep(30 * time.Second)
-		status, _ := getHashStatusById(requestId)
+		time.Sleep(1 * time.Minute)
+		status, _, _, _ := getHashStatusById(requestId)
 		if status == model.IN_PROGRESS {
 			updateTaskStatus(requestId, "ERROR")
 		}
@@ -125,4 +124,34 @@ func generateXMLRequest(requestId, hash string, maxLength, partNumber, partCount
 		return ""
 	}
 	return string(xmlData)
+}
+
+func calculateProgress(status string, startTime time.Time, timeout time.Duration) int {
+	if status == model.READY || status == model.ERROR || status == model.PARTITION_READY {
+		return 100
+	}
+
+	if status == model.IN_PROGRESS && !startTime.IsZero() && timeout > 0 {
+		elapsed := time.Since(startTime)
+		if elapsed >= timeout {
+			return 100
+		}
+		progress := int(float64(elapsed) / float64(timeout) * 100)
+		if progress < 1 && elapsed > 0 {
+			progress = 1
+		}
+		return progress
+	}
+
+	return 0
+}
+
+func filterEmptyStrings(data []string) []string {
+	var cleaned []string
+	for _, item := range data {
+		if item != "" {
+			cleaned = append(cleaned, item)
+		}
+	}
+	return cleaned
 }
